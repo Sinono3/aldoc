@@ -1,0 +1,11 @@
+This test debugs if hyphens that are unrelated to list markers
+still compile with no-problem.
+
+- Alement
+- Bele-ment
+- Celement-
+- Delement  -
+
+- 
+- 
+-  

@@ -8,3 +8,5 @@ edition = "2018"
 
 [dependencies]
 regex = "1"
+thiserror = "1.0"
+clap = "3.0.0-beta.1"
