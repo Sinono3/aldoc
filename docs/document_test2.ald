@@ -1,0 +1,19 @@
+# An introduction to Aldoc.
+
+*aldoc* is a markup language created by Aldo Acevedo, which takes heavy
+inspiration from Markdown. Its goal is to provide the simple syntax
+that Markdown (Pandoc's version, especifically) has, but without the 
+quirks that it brings with it, such as:
+
+- Different versions and editions of Markdown which vary mildly in 
+syntax, thus making it unreliable for posting on multiple platforms 
+(GitHub Markdown, original HTML Markdown, Pandoc Markdown, etc.)
+- Markdown was not intended for use outside of small documents, such as
+small notes or READMEs, which led to decisions that impacted the
+ergonomics in the syntax (pandoc filters) and ended up in the creation of the different
+versions.
+
+The aldoc compiler actually only plays a small part in the compilation:
+
+- (1st) The aldoc source is parsed and compiled to LaTeX.
+- (2nd) The LaTeX code is compiled to PDF.
