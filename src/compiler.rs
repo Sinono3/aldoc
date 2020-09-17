@@ -7,7 +7,7 @@ pub trait Compiler {
     fn compile(&mut self, document: &Document) -> String; 
 }
 
-/// Compiles to LaTeX.
+/// Compiles into LaTeX.
 pub struct IntoLatex;
 
 impl IntoLatex {
@@ -91,7 +91,7 @@ r#"\documentclass{article}
     }
 }
 
-/// Compiles to terminal friendly text.
+/// Compiles into terminal friendly text.
 pub struct IntoPrintable;
 
 impl IntoPrintable {
