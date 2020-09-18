@@ -11,7 +11,9 @@ pub enum PdfError {
     #[error("Couldn't call `latexmk`: {0}")]
     IoError(io::Error),
     #[error("LatexMk error: {0}")]
-    LatexMkError(String)
+    LatexMkError(String),
+    #[error("File {0} already exists")]
+    FileExists(PathBuf)
 }
 impl From<std::io::Error> for PdfError {
     fn from(err: std::io::Error) -> PdfError {
@@ -54,9 +56,16 @@ where T: Into<PathBuf>
     let out = out.into().with_extension("tex");
     // testing: println!("{}", compiled);
 
+    if out.exists() {
+        // TODO: should actually make the tex file in a temp directory
+        // instead of in the PDF directory
+        return Err(PdfError::FileExists(out));
+    }
     fs::write(&out, compiled)?;
     latexmk_pdf(&out)?;
-    latexmk_cleanup(&out)?;
+    // TODO: if there were already build files in the folder they
+    // will be deleted, this is wrong
+    latexmk_cleanup(&out)?; 
     fs::remove_file(&out)?;
     Ok(())
 }
