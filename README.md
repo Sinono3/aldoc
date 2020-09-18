@@ -4,7 +4,7 @@
 
 *aldoc* is a markup language, which takes heavy inspiration from Markdown. Its 
 goal is to provide the simple syntax that Markdown (Pandoc's version, 
-especifically) has, but without the quirks that it brings with it, such as:
+specifically) has, but without the quirks that it brings with it, such as:
 
 - Different versions and editions of Markdown which vary mildly in 
 syntax, thus making it unreliable for posting on multiple platforms 
@@ -12,12 +12,13 @@ syntax, thus making it unreliable for posting on multiple platforms
 - Markdown was not intended for use outside of small documents, such as
 small notes or READMEs, which led to decisions that impacted the
 ergonomics in the syntax (pandoc filters) and ended up in the creation of the different
-versions.
+variants.
 
 The *aldoc* compiler actually only plays a small part in the compilation:
 
-1. The aldoc source is parsed and compiled to LaTeX.
-2. The LaTeX code is compiled to PDF.
+1. The aldoc source is parsed into a Rust abstraction.
+2. The abstraction is compiled to LaTeX.
+3. The LaTeX code is compiled to PDF via LatexMk.
 
 ## Syntax 
 
@@ -59,5 +60,21 @@ following:
 	- [ ] Tables
 - [ ] Line separators
 - [ ] LaTeX template support (for defaulting styles or packages)
+
+# Usage
+
+To actually compile the document, you only need to provide it with the input
+file path (.ald) and the output pdf path, like this:
+
+```shell
+$ aldoc doc.ald out.pdf
+```
+
+You may even omit the output file, in which case, aldoc will output a pdf
+with the same name as the document.
+
+```shell
+$ aldoc doc.ald # outputs pdf as "doc.pdf"
+```
 
 *(ironically this README is written in Markdown)*
