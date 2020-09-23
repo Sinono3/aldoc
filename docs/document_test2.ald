@@ -15,5 +15,5 @@ versions.
 
 The aldoc compiler actually only plays a small part in the compilation:
 
-- (1st) The aldoc source is parsed and compiled to LaTeX.
-- (2nd) The LaTeX code is compiled to PDF.
+1. The aldoc source is parsed and compiled to LaTeX.
+2. The LaTeX code is compiled to PDF.

@@ -1,4 +1,3 @@
-mod indent;
 mod parse;
 mod compiler;
 mod pdf;
@@ -14,16 +13,16 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum AldocError {
-    #[error("Error parsing document: {0}")]
-    ParseError(ParseError),
+    #[error("Error parsing document")]
+    ParseError(String),
     #[error("Error compiling document")]
     CompilationError, // unimplemented
     #[error("Error exporting to PDF: {0}")]
     PdfError(PdfError)
 }
-impl From<ParseError> for AldocError {
+impl<'s> From<ParseError<'s>> for AldocError {
     fn from(e: ParseError) -> AldocError {
-        AldocError::ParseError(e)
+        AldocError::ParseError(e.to_string())
     }
 }
 impl From<PdfError> for AldocError {

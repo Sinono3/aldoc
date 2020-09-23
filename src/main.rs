@@ -1,4 +1,5 @@
 use aldoc::{AldocError, parse, save_as_pdf};
+use aldoc::{IntoLatex, IntoPrintable, Compiler};
 use std::fs;
 use std::path::PathBuf;
 use clap::Clap;
@@ -18,7 +19,11 @@ fn main() -> Result<(), AldocError> {
 
     let text = fs::read_to_string(&aldoc.input).unwrap();
     let document = parse(&text).unwrap();
-    let output = if let Some(o) = aldoc.output{
+
+
+    println!("{}", IntoLatex.compile(&document));
+
+    /*let output = if let Some(o) = aldoc.output{
         o
     } else {
         let mut path = aldoc.input.clone();
@@ -27,7 +32,7 @@ fn main() -> Result<(), AldocError> {
     };
     println!("{:?}", &output);
 
-    save_as_pdf(&document, output)?;
+    save_as_pdf(&document, output)?;*/
     Ok(())
 }
 

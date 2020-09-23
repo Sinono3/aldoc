@@ -36,12 +36,32 @@ following:
 	felis venenatis finibus lacinia, nisi velit laoreet odio, vitae 
 	pellentesque turpis eros nec est. Maecenas vestibulum scelerisque cursus.
 	```
-- Lists can only be written with the `-` character.
+- Unnumbered lists can be written with the `-` or the `+` character.
 	```
 	- Alement
 	- Belement
 	- Celement
 	```
+- Enumerated lists can be written:
+	- With numbers:
+		```
+		1. Alement
+		2. Belement
+		3. Celement
+		```
+	- With letters (uppercase or lowercase):
+		```
+		a) Alement
+		b) Belement
+		c) Celement
+		```
+	- With roman numbers (uppercase or lowercase):
+		```
+		I- Alement
+		II- Belement
+		III- Celement
+		```
+	The symbol after the number (terminator), can be any of `.`, `-`, or `)`.
 - Bold text is written with asterisks around it.
 	```
 	Normal text is written *until the asterisks come around*.
@@ -53,7 +73,10 @@ following:
 - [X] Allow LaTeX in the source
 - [X] Bold text
 - [X] Unnumbered lists
-- [ ] Numbered lists
+- [X] Enumerated lists
+	- [X] Numbered
+	- [ ] Alphabetic
+	- [ ] Roman
 - [ ] Embeds
 	- [ ] Images
 	- [ ] Vector images
@@ -61,7 +84,7 @@ following:
 - [ ] Line separators
 - [ ] LaTeX template support (for defaulting styles or packages)
 
-# Usage
+## Usage
 
 To actually compile the document, you only need to provide it with the input
 file path (.ald) and the output pdf path, like this:
@@ -76,5 +99,17 @@ with the same name as the document.
 ```shell
 $ aldoc doc.ald # outputs pdf as "doc.pdf"
 ```
+
+## Thanks
+
+Thanks to Markdown, and the *Nom* parser library for providing the necessary 
+tools, as it was fundamental to making the Aldoc parser more extensible. Links 
+for reference:
+
+- [https://github/Geal/nom](Nom)
+- [https://github.com/adamchalmers/fountain-rs](*Fountain* markup language 
+parser using Nom)
+- [https://github.com/HGHimself/prose/blob/master/src/markdown.rs](Markdown 
+parser using Nom)
 
 *(ironically this README is written in Markdown)*

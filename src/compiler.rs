@@ -1,4 +1,4 @@
-use crate::parse::{Document, Part, Paragraph};
+use crate::parse::{Document, Block, List, ListToken, ListItem};
 
 // made this a trait just for more extensibility
 // in the future
@@ -29,31 +29,40 @@ impl IntoLatex {
             buf.push(ch);
         }
     }
-    fn print_paragraph(buf: &mut String, par: &Paragraph, in_list: bool) {
-        match par {
-            Paragraph::Text(t) => if in_list {
-                buf.push_str(r#"\item "#);
-                Self::push_text(buf, t);
-                buf.push('\n');
-            } else {
-                Self::push_text(buf, t);
-                buf.push_str("\n\n");
-            },
-            Paragraph::List(l) => {
-                buf.push_str(r#"\begin{itemize}"#);
-                buf.push('\n');
-                for e in l { 
-                    Self::print_paragraph(buf, e, true);
-                }
-                buf.push_str(r#"\end{itemize}"#);
-                buf.push_str("\n\n");
+    fn print_paragraph(buf: &mut String, paragraph: &str) {
+        IntoLatex::push_text(buf, paragraph);
+        buf.push_str("\n\n");
+    }
+    fn print_list(buf: &mut String, list: &List) {
+        let environment = match list.token {
+            ListToken::Dot => "itemize",
+            ListToken::Numbered => "enumerate",
+            _ => "itemize",
+        };
+        buf.push_str(r#"\begin{"#);
+        buf.push_str(environment);
+        buf.push_str("}");
+        buf.push('\n');
+
+        for item in &list.vec { 
+            buf.push_str(r#"\item "#);
+            IntoLatex::push_text(buf, &item.text);
+            buf.push('\n');
+
+            if let Some(list) = &item.list {
+                IntoLatex::print_list(buf, &list);
             }
         }
+
+        buf.push_str(r#"\end{"#);
+        buf.push_str(environment);
+        buf.push_str("}");
+        buf.push_str("\n\n");
     }
-    fn print_part(buf: &mut String, part: &Part) {
+    fn print_block(buf: &mut String, part: &Block) {
         match part {
-            Part::Heading(h, i) => { 
-                let latex_heading = match i {
+            Block::Heading(level, title) => { 
+                let latex_heading = match level {
                     // hmm, shouldn't section be a better 
                     // fit for level 0 instead of chapter?
                     0 => r#"\chapter{"#, 
@@ -65,10 +74,11 @@ impl IntoLatex {
                     _ => r#"\heading{"#,
                 };
                 buf.push_str(latex_heading);
-                buf.push_str(&h);
+                buf.push_str(&title);
                 buf.push_str("}\n\n");
             },
-            Part::Paragraph(p) => Self::print_paragraph(buf, p, false)
+            Block::Paragraph(p) => IntoLatex::print_paragraph(buf, &p),
+            Block::List(list) => IntoLatex::print_list(buf, &list),
         }
     }
 }
@@ -82,8 +92,8 @@ r#"\documentclass{article}
 \begin{document}
 "#);
 
-        for part in &document.parts {
-            Self::print_part(&mut string, &part);
+        for block in &document.blocks {
+            IntoLatex::print_block(&mut string, &block);
         }
 
         string.push_str(r#"\end{document}"#);
@@ -95,38 +105,47 @@ r#"\documentclass{article}
 pub struct IntoPrintable;
 
 impl IntoPrintable {
-    fn print_paragraph(buf: &mut String, par: &Paragraph, indent: u32, in_list: bool) {
+    fn print_paragraph(buf: &mut String, par: &str) {
+        buf.push_str(par);
+        buf.push_str("\n\n");
+    }
+    fn print_list(buf: &mut String, list: &List, indent: usize) {
         for _ in 0..indent {
             buf.push_str("  ");
         }
-        match par {
-            Paragraph::Text(t) => if in_list {
-                buf.push_str("- ");
-                buf.push_str(&t);
-                buf.push('\n');
-            } else {
-                buf.push_str(&t);
-                buf.push_str("\n\n");
-            },
-            Paragraph::List(l) => {
-                for e in l { 
-                    Self::print_paragraph(buf, e, indent+1, true);
-                }
-                buf.push('\n');
+        let get_token = |i: usize| 
+            match list.token {
+                ListToken::Dot => String::from("-"),
+                ListToken::Numbered => format!("{}.", i + 1),
+                _ => String::from("-")
+            };
+
+
+        let iter = list.vec.iter().enumerate();
+        for (index, item) in iter {
+            buf.push_str(&get_token(index));
+            buf.push(' ');
+            buf.push_str(&item.text);
+            buf.push('\n');
+
+            if let Some(list) = &item.list {
+                IntoPrintable::print_list(buf, &list, indent + 1);
             }
         }
+        buf.push_str("\n\n");
     }
-    fn print_part(buf: &mut String, part: &Part) {
+    fn print_block(buf: &mut String, part: &Block) {
         match part {
-            Part::Heading(h, i) => { 
-                for _ in 0..*i {
+            Block::Heading(level, title) => { 
+                for _ in 0..*level {
                     buf.push('#');
                 }
                 buf.push(' ');
-                buf.push_str(&h);
+                buf.push_str(&title);
                 buf.push_str("\n\n");
             },
-            Part::Paragraph(p) => Self::print_paragraph(buf, p, 0, false)
+            Block::Paragraph(p) => Self::print_paragraph(buf, p),
+            Block::List(list) => IntoPrintable::print_list(buf, &list, 0),
         }
     }
 }
@@ -134,8 +153,8 @@ impl Compiler for IntoPrintable {
     fn compile(&mut self, document: &Document) -> String {
         let mut string = String::new();
 
-        for part in &document.parts {
-            Self::print_part(&mut string, &part);
+        for part in &document.blocks {
+            Self::print_block(&mut string, &part);
         }
         string
     }
