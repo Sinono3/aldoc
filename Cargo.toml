@@ -1,8 +1,10 @@
 [package]
 name = "aldoc"
 version = "0.1.0"
-authors = ["sinono3 <aldoacevedo1993@gmail.com>"]
 edition = "2018"
+authors = ["sinono3 <aldoacevedo1993@gmail.com>"]
+description = "CLI and library for parsing and compiling Aldoc documents"
+
 license = "MIT"
 keywords = ["typesetting", "markup", "markdown", "latex"]
 categories = ["command-line-utilities", "parser-implementations", "encoding", "template-engine"]
