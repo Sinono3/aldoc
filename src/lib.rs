@@ -1,3 +1,50 @@
+//! # Aldoc
+//!
+//! `aldoc` is a markup language, which takes heavy inspiration from 
+//! Markdown. Its goal is to provide the simple syntax that Markdown 
+//! (Pandoc's version, specifically) has, but without the quirks that 
+//! it brings with it.
+//!
+//! ## Package
+//!
+//! This package's goal is to provide an abstraction for the language
+//! and also a way to compile the documents to PDF. To do that the
+//! following processes takes place.
+//! 
+//! 1. The aldoc source is parsed into a Rust abstraction.
+//! 2. The abstraction is compiled to LaTeX.
+//! 3. The LaTeX code is compiled to PDF via LatexMk.
+//!
+//! **LatexMK is required in order to use the compiler.**
+//!
+//! ## Syntax 
+//! 
+//! The syntax of aldoc is still *WIP*, I have not decided yet which syntax will be
+//! most ergonomic, but still, the one used for testing temporarily is the 
+//! following:
+//! 
+//! - Paragraphs are spaced with a blank line between them. **This example cannot be
+//! shown on the Rust doc because it doesn't let me (yet again Markdown!)**
+//! - Unnumbered lists can be written with the `-` or the `+` character.
+//! 	```
+//! 	- Alement
+//! 	- Belement
+//! 	- Celement
+//! 	```
+//! - Enumerated lists can be written:
+//! 	- With numbers:
+//! 		```
+//! 		1. Alement
+//! 		2. Belement
+//! 		3. Celement
+//! 		```
+//! 	The symbol after the number (terminator), can be any of `.`, `-`, or `)`.
+//! - Bold text is written with asterisks around it.
+//! 	```
+//! 	Normal text is written *until the asterisks come around*.
+//! 	```
+//!
+
 mod parse;
 mod compiler;
 mod pdf;
@@ -53,13 +100,5 @@ mod tests {
         let text = std::fs::read_to_string(p.into()).unwrap();
         parse(&text)?;
         Ok(())
-    }
-    #[test]
-    fn hyphen() {
-        assert!(quick_parse("docs/hyphen_in_text.ald").is_ok());
-    }
-    #[test]
-    fn incorrect_headings() {
-        assert!(quick_parse("docs/incorrect_headings.ald").is_err());
     }
 }
