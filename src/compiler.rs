@@ -1,4 +1,23 @@
-use crate::parse::{Document, Block, List, ListToken, ListItem};
+use std::convert::TryFrom;
+use crate::parse::{Document, Block, List, ListToken};
+use numerals::roman::Roman;
+
+static ALPHABET_UPPER: [char; 26] = [
+    'A', 'B', 'C', 'D', 'E', 
+    'B', 'G', 'H', 'I', 'J', 
+    'K', 'L', 'M', 'N', 'O',
+    'P', 'Q', 'R', 'S', 'T', 
+    'U', 'V', 'W', 'X', 'Y', 
+    'Z',
+];
+static ALPHABET_LOWER: [char; 26] = [
+    'a', 'b', 'c', 'd', 'e', 
+    'f', 'g', 'h', 'i', 'j', 
+    'k', 'l', 'm', 'n', 'o',
+    'p', 'q', 'r', 's', 't', 
+    'u', 'v', 'w', 'x', 'y', 
+    'z',
+];
 
 // made this a trait just for more extensibility
 // in the future
@@ -12,8 +31,9 @@ pub struct IntoLatex;
 
 impl IntoLatex {
     fn push_text(buf: &mut String, text: &str) {
-        let mut in_bold = false;
+        // TODO: This is not foolproof
         // should also check for italics
+        let mut in_bold = false;
 
         for ch in text.chars() {
             if ch == '*' {
@@ -28,6 +48,9 @@ impl IntoLatex {
             }
             buf.push(ch);
         }
+        if in_bold {
+            buf.push('}');
+        }
     }
     fn print_paragraph(buf: &mut String, paragraph: &str) {
         IntoLatex::push_text(buf, paragraph);
@@ -35,13 +58,24 @@ impl IntoLatex {
     }
     fn print_list(buf: &mut String, list: &List) {
         let environment = match list.token {
-            ListToken::Dot => "itemize",
-            ListToken::Numbered => "enumerate",
-            _ => "itemize",
+            ListToken::Unnumbered => "itemize",
+            _ => "enumerate",
         };
         buf.push_str(r#"\begin{"#);
         buf.push_str(environment);
         buf.push_str("}");
+
+        let extra = match list.token {
+            ListToken::Unnumbered => "",
+            ListToken::Numbered => "",
+            ListToken::Alphabetical(true)   => "[label=\\Alph*.]",
+            ListToken::Alphabetical(false)  => "[label=\\alph*.]",
+            ListToken::Roman(true)   => "[label=\\Roman*.]",
+            ListToken::Roman(false)  => "[label=\\roman*.]",
+            _ => "itemize",
+        };
+        buf.push_str(extra);
+
         buf.push('\n');
 
         for item in &list.vec { 
@@ -63,7 +97,7 @@ impl IntoLatex {
         match part {
             Block::Heading(level, title) => { 
                 let latex_heading = match level {
-                    // hmm, shouldn't section be a better 
+                    // FIXME: hmm, shouldn't section be a better 
                     // fit for level 0 instead of chapter?
                     0 => r#"\chapter{"#, 
                     1 => r#"\section{"#,
@@ -89,6 +123,8 @@ impl Compiler for IntoLatex {
         string.push_str(
 r#"\documentclass{article}
 
+\usepackage{enumitem}
+
 \begin{document}
 "#);
 
@@ -101,6 +137,15 @@ r#"\documentclass{article}
     }
 }
 
+fn roman(number: i16, uppercase: bool) -> String {
+    let roman = Roman::from(number);
+
+    if uppercase {
+        format!("{:X}", roman)
+    } else {
+        format!("{:x}", roman)
+    }
+}
 /// Compiles into terminal friendly text.
 pub struct IntoPrintable;
 
@@ -113,17 +158,35 @@ impl IntoPrintable {
         for _ in 0..indent {
             buf.push_str("  ");
         }
-        let get_token = |i: usize| 
+        // index starts on 1
+        let get_token = |i: i16| 
             match list.token {
-                ListToken::Dot => String::from("-"),
-                ListToken::Numbered => format!("{}.", i + 1),
+                ListToken::Unnumbered => String::from("-"),
+                ListToken::Numbered => format!("{}.", i),
+                ListToken::Alphabetical(u)   => {
+                    // FIXME: Should this happen?
+                    // What are alternatives to this?
+                    
+                    if i > 26 {
+                        panic!("List bigger than alphabet size");
+                    }
+                    if u {
+                        format!("{}.", ALPHABET_UPPER[(i - 1) as usize])
+                    } else {
+                        format!("{}.", ALPHABET_LOWER[(i - 1) as usize])
+                    }
+                }
+                ListToken::Roman(u) => format!("{}.", roman(i, u)),
                 _ => String::from("-")
             };
 
 
         let iter = list.vec.iter().enumerate();
         for (index, item) in iter {
-            buf.push_str(&get_token(index));
+            // limitation on list size
+            let index = i16::try_from(index).expect("List bigger than 32768 elements");
+
+            buf.push_str(&get_token(index + 1));
             buf.push(' ');
             buf.push_str(&item.text);
             buf.push('\n');
@@ -132,7 +195,7 @@ impl IntoPrintable {
                 IntoPrintable::print_list(buf, &list, indent + 1);
             }
         }
-        buf.push_str("\n\n");
+        buf.push_str("\n");
     }
     fn print_block(buf: &mut String, part: &Block) {
         match part {

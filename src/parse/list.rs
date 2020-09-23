@@ -1,24 +1,23 @@
 use crate::format_text;
 use nom::{
     branch::alt,
-    bytes::complete::{tag, take, take_while},
-    combinator::{verify, recognize, opt, not, map, map_res},
+    bytes::complete::{tag, take, take_while1},
+    combinator::{verify, recognize, opt, not, map, map_opt},
     multi::{many1, count},
     sequence::{pair, terminated, preceded},
 };
+use numerals::roman::Numeral;
 
 use nom::IResult;
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum ListToken {
     // unordered
-    Dot,
+    Unnumbered,
 
     // ordered
     Numbered,
-    RomanLowercase,
-    RomanUppercase,
-    AlphabeticalLowercase,
-    AlphabeticalUppercase,
+    Roman(bool),        // uppercase or lowercase
+    Alphabetical(bool), // uppercase or lowercase
 }
 
 #[derive(Debug, Clone)]
@@ -33,41 +32,66 @@ pub struct ListItem {
     pub list: Option<List>
 }
 
+fn parse_terminator(input: &str) -> IResult<&str, &str> {
+    alt((
+        tag(")"),
+        tag("-"),
+        tag("."),
+    ))(input)
+}
 // this parses the full token.
 fn parse_item_token(input: &str) -> IResult<&str, ListToken> {
-    let terminator =
-        alt((
-            tag(")"),
-            tag("-"),
-            tag("."),
-        ));
-    let numbered =
-        terminated(
-            take_while(|c: char| c.is_digit(10)),
-            terminator,
+    let unnumbered = 
+        map(
+            alt((
+                tag("-"),
+                tag("+")
+            )),
+            |_| ListToken::Unnumbered
         );
-
-    map_res(
-        alt((
-           tag("-"),
-            tag("+"),
-            numbered
-        )),
-        |t: &str| {
-            // check if it is a number
-            let ch = t.chars().nth(0).unwrap();
-
-            if ch.is_digit(10) {
-                return Ok(ListToken::Numbered);
+    let numbered =
+        map(
+            terminated(
+                take_while1(|c: char| c.is_digit(10)),
+                parse_terminator,
+            ),
+            |_| ListToken::Numbered
+        );
+    let alphabetic = 
+        map(
+            terminated(
+                verify(
+                    take(1u8),
+                    |c: &str| {
+                        let c = c.chars().nth(0).unwrap();
+                        c.is_alphabetic()
+                    }
+                ),
+                parse_terminator,
+            ),
+            |a| {
+                let ch = a.chars().nth(0).unwrap();
+                ListToken::Alphabetical(ch.is_uppercase())
             }
-
-            match t {
-                "-" => Ok(ListToken::Dot),
-                "+" => Ok(ListToken::Dot),
-                _ => Err("No matching token.")
+        );
+    let roman =
+        map(
+            terminated(
+                take_while1(|r| Numeral::from_char(r).is_some()),
+                parse_terminator
+            ),
+            |n| {
+                let ch = n.chars().nth(0).unwrap();
+                ListToken::Roman(ch.is_uppercase())
             }
-        }
-    )(input)
+        );
+    
+    alt((
+        unnumbered,
+        numbered,
+        roman,
+        alphabetic,
+    ))(input)
 }
 
 fn parse_item_start(indent: usize) -> impl Fn(&str) -> IResult<&str, ListToken> {
@@ -82,16 +106,32 @@ fn parse_item_start(indent: usize) -> impl Fn(&str) -> IResult<&str, ListToken> 
 }
 
 fn parse_item_start_and_enforce(indent: usize, enforced: ListToken) -> impl Fn(&str) -> IResult<&str, ListToken> {
+    use ListToken::*;
+
     move |input: &str|
         verify(
             parse_item_start(indent),
-            |token| *token == enforced
+            |token| {
+                if *token == enforced {
+                    return true;
+                } 
+                // this enables roman numerals to also qualify
+                // as alphabetic tokens
+                if let Alphabetical(alpha_upper) = enforced {
+                    if let Roman(roman_upper) = token {
+                        // this part checks if they have the same case
+                        return alpha_upper == *roman_upper;
+                    }
+                }
+                false
+            }
         )(input)
 }
 
 fn parse_item(indent: usize, token: ListToken) -> impl Fn(&str) -> IResult<&str, ListItem> {
     let item_start = parse_item_start_and_enforce(indent, token);
     let next_item_start = parse_item_start(indent + 1);
+
 
     move |input: &str|
         map(
@@ -127,7 +167,6 @@ fn parse_item(indent: usize, token: ListToken) -> impl Fn(&str) -> IResult<&str,
                     if let Ok(_) = next_item_start(s) {
                         if let Ok((_, result)) = parse_list(indent + 1)(s) {
                             list = Some((i, result));
-                            println!("YEAH {}", s);
                             break;
                         }
                     }
@@ -150,7 +189,7 @@ fn parse_item(indent: usize, token: ListToken) -> impl Fn(&str) -> IResult<&str,
 pub fn parse_list(indent: usize) -> impl Fn(&str) -> IResult<&str, List> {
     move |input: &str| {
         // this works, but there must be a better way
-        let mut token = ListToken::Dot;
+        let mut token = ListToken::Unnumbered;
 
         if let Ok((_, result)) = parse_item_start(indent)(input){
             token = result;

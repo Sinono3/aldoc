@@ -23,9 +23,11 @@ pub enum Block {
     Paragraph(String),
     List(List), // contains both ordered and unordered
 }
+
 fn end(input: &str) -> IResult<&str, &str> {
     tag("\n\n")(input)
 }
+
 fn block_text(input: &str) -> IResult<&str, String> {
     terminated(
         map(
@@ -40,6 +42,7 @@ fn block_text(input: &str) -> IResult<&str, String> {
         opt(end)
     )(input)
 }
+
 fn parse_block_heading(input: &str) -> IResult<&str, Block> {
     map(
         pair(
@@ -52,18 +55,21 @@ fn parse_block_heading(input: &str) -> IResult<&str, Block> {
         |(level, s)| Block::Heading(level, s)
     )(input)
 }
+
 fn parse_block_paragraph(input: &str) -> IResult<&str, Block> {
     map(
         block_text,
         |s| Block::Paragraph(format_text(&s))
     )(input)
 }
+
 fn parse_block_list(input: &str) -> IResult<&str, Block> {
     map(
         parse_list(0),
         |l| Block::List(l)
     )(input)
 }
+
 fn parse_block(input: &str) -> IResult<&str, Block> {
     alt((
         parse_block_heading,

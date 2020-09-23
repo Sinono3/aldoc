@@ -1,0 +1,44 @@
+# Tokens
+
+Tokens are fundamental to lists.
+Here are some of their variants.
+
+## Unnumbered
+
+- f
+- Yeah
+- aaap
+
+## Numbered
+
+1. Hmm
+2. Yppff
+3. aaaa
+
+## Alphabetical
+
+### Lowercase
+
+a. Yeah
+b. ABCD
+c. XYZW
+
+### Uppercase
+
+A) Yeah
+B) ABCD
+C) XYZW
+
+## Roman tokens
+
+### Lowercase
+
+i- Yeah
+ii- ABCD
+iii- XYZW
+
+### Uppercase
+
+I- Yeah
+II- ABCD
+III- XYZW
