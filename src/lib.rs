@@ -6,7 +6,7 @@
 //! Markdown's pretty syntax.
 //! 
 //! Another one of its goals is to remove the quirks that Markdown brings with its 
-//! simplistic design, such as:
+//! original design, such as:
 //! 
 //! - Different versions and editions of Markdown which mildly in syntax, thus 
 //! making it unreliable for posting on multiple platforms (GitHub Markdown, 
