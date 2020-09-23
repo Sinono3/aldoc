@@ -106,8 +106,8 @@ Thanks to Markdown, and the *Nom* parser library for providing the necessary
 tools, as it was fundamental to making the Aldoc parser more extensible. Links 
 for reference:
 
-- [https://github/Geal/nom](Nom)
-- [https://github.com/adamchalmers/fountain-rs](*Fountain* markup language parser using Nom)
-- [https://github.com/HGHimself/prose/blob/master/src/markdown.rs](Markdown parser using Nom)
+- [Nom](https://github/Geal/nom)
+- [*Fountain* markup language parser using Nom](https://github.com/adamchalmers/fountain-rs)
+- [Markdown parser using Nom](https://github.com/HGHimself/prose/blob/master/src/markdown.rs)
 
 *(ironically this README is written in Markdown)*
