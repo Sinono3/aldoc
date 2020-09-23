@@ -39,7 +39,7 @@ the following:
 	- Celement
 	```
 - Enumerated lists can be written in many ways. Aldoc's design allow you to use
-any combination of tokens.
+any combination of enumerator (`1`, `a`, `III`) and symbol (`.`, `)`, `-`).
 	- With numbers:
 		```
 		1. Alement
