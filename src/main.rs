@@ -48,7 +48,6 @@ fn main() -> Result<(), AldocError> {
                 path.set_extension("pdf");
                 path
             };
-            println!("{:?}", &output);
 
             save_as_pdf(&document, output)?;
         }

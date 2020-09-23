@@ -3,6 +3,13 @@ name = "aldoc"
 version = "0.1.0"
 authors = ["sinono3 <aldoacevedo1993@gmail.com>"]
 edition = "2018"
+license = "MIT"
+keywords = ["typesetting", "markup", "markdown", "latex"]
+categories = ["command-line-utilities", "parser-implementations", "encoding", "template-engine"]
+repository = "https://github.com/Sinono3/aldoc/"
+exclude = [
+    "examples/*",
+]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

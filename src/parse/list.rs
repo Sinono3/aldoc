@@ -2,7 +2,7 @@ use crate::format_text;
 use nom::{
     branch::alt,
     bytes::complete::{tag, take, take_while1},
-    combinator::{verify, recognize, opt, not, map, map_opt},
+    combinator::{verify, recognize, opt, not, map},
     multi::{many1, count},
     sequence::{pair, terminated, preceded},
 };

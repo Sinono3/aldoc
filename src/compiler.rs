@@ -72,7 +72,6 @@ impl IntoLatex {
             ListToken::Alphabetical(false)  => "[label=\\alph*.]",
             ListToken::Roman(true)   => "[label=\\Roman*.]",
             ListToken::Roman(false)  => "[label=\\roman*.]",
-            _ => "itemize",
         };
         buf.push_str(extra);
 
@@ -177,7 +176,6 @@ impl IntoPrintable {
                     }
                 }
                 ListToken::Roman(u) => format!("{}.", roman(i, u)),
-                _ => String::from("-")
             };
 
 
