@@ -100,7 +100,7 @@ $ aldoc doc.ald compile # outputs pdf as "doc.pdf"
 	- [X] Numbered
 	- [X] Alphabetic
 	- [X] Roman
-- [ ] UTF-8 support
+- [X] UTF-8 support
 - [ ] Windows line endings
 - [ ] Control list tokens completely (make the selected token symbol appear in 
 the final document)
