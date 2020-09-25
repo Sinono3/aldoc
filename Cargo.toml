@@ -5,7 +5,7 @@ edition = "2018"
 authors = ["sinono3 <aldoacevedo1993@gmail.com>"]
 description = "CLI and library for parsing and compiling Aldoc documents"
 
-license = "MIT"
+license = "Apache-2.0"
 keywords = ["typesetting", "markup", "markdown", "latex"]
 categories = ["command-line-utilities", "parser-implementations", "encoding", "template-engine"]
 repository = "https://github.com/Sinono3/aldoc/"
