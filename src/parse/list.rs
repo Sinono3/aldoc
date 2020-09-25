@@ -161,7 +161,7 @@ fn parse_item(indent: usize, token: ListToken) -> impl Fn(&str) -> IResult<&str,
                 let mut list = None;
 
                 // checks for sublists
-                for i in 0..content.len() {
+                for (i, _) in content.char_indices() {
                     let s = &content[i..];
 
                     if let Ok(_) = next_item_start(s) {
