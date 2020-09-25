@@ -157,7 +157,7 @@ fn parse_item(indent: usize, token: ListToken) -> impl Fn(&str) -> IResult<&str,
                 ),
                 opt(tag("\n"))
             ),
-            |(_, mut content)| {
+            |(_, content)| {
                 let mut list = None;
 
                 // checks for sublists
@@ -171,15 +171,16 @@ fn parse_item(indent: usize, token: ListToken) -> impl Fn(&str) -> IResult<&str,
                         }
                     }
                 }
+                let text;
                 if let Some((i, _)) = list {
                     // -1 because of the newline
-                    content = format_text(&content[..i-1]);
+                    text = format_text(&content[..i-1]);
                 } else {
-                    content = format_text(&content);
+                    text = format_text(&content);
                 }
 
                 ListItem {
-                    text: content,
+                    text,
                     list: list.map(|l| l.1)
                 }
             }
