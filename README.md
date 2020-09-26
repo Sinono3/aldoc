@@ -101,7 +101,7 @@ $ aldoc doc.ald compile # outputs pdf as "doc.pdf"
 	- [X] Alphabetic
 	- [X] Roman
 - [X] UTF-8 support
-- [ ] Windows line endings
+- [X] Cross-platform line endings
 - [ ] Control list tokens completely (make the selected token symbol appear in 
 the final document)
 - [ ] Checkboxes

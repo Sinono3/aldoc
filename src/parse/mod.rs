@@ -1,20 +1,37 @@
 mod list;
+mod util;
+pub use util::*;
 pub use list::*;
 
 use nom::{
     branch::alt,
     bytes::complete::{tag, take},
-    combinator::{opt, not, map},
+    combinator::{recognize, opt, not, map},
     multi::{many0, many1, many1_count},
     sequence::{terminated, preceded, pair},
+    character::complete::line_ending,
 };
 use nom::IResult;
 
 pub type ParseError<'s> = nom::Err<(&'s str, nom::error::ErrorKind)>;
 
-/// Replaces all newlines with a single space
+/// Replaces all consecutive line endings and tabs with a single space
 pub fn format_text(s: &str) -> String {
-    s.replace("\n", " ")
+    let r: IResult<&str, String> = map(
+        many0(
+            alt((
+                map(
+                    many1(alt((line_ending, tag("\t")))),
+                    |_| " "
+                ),
+                take(1u8)
+            ))
+        ),
+        |v: Vec<&str>| v.join("")
+    )(s);
+    r.expect("format_text cannot fail").1
+    // This function cannot fail
+    // TODO: unit-test this
 }
 
 #[derive(Debug, Clone)]
@@ -25,21 +42,16 @@ pub enum Block {
 }
 
 fn end(input: &str) -> IResult<&str, &str> {
-    tag("\n\n")(input)
+    recognize(pair(line_ending, line_ending))(input)
 }
 
 fn block_text(input: &str) -> IResult<&str, String> {
-    terminated(
-        map(
-            many1(
-                preceded(
-                    not(end),
-                    take(1u8)
-                )
-            ),
-            |s: Vec<&str>| s.join("").to_string()
+    map(
+        terminated(
+            take_until_match(end),
+            opt(end)
         ),
-        opt(end)
+        |s: &str| s.to_string()
     )(input)
 }
 

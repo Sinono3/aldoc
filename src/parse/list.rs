@@ -5,6 +5,7 @@ use nom::{
     combinator::{verify, recognize, opt, not, map},
     multi::{many1, count},
     sequence::{pair, terminated, preceded},
+    character::complete::line_ending,
 };
 use numerals::roman::Numeral;
 
@@ -132,7 +133,6 @@ fn parse_item(indent: usize, token: ListToken) -> impl Fn(&str) -> IResult<&str,
     let item_start = parse_item_start_and_enforce(indent, token);
     let next_item_start = parse_item_start(indent + 1);
 
-
     move |input: &str|
         map(
             terminated(
@@ -142,41 +142,41 @@ fn parse_item(indent: usize, token: ListToken) -> impl Fn(&str) -> IResult<&str,
                         many1(
                             preceded(
                                 not(pair(
-                                    tag("\n"),
+                                    line_ending,
                                     alt((
-                                        tag("\n"),
+                                        recognize(line_ending),
                                         recognize(&item_start),
                                     ))
                                 )),
-
                                 take(1u8)
                             )
                         ),
                         |s: Vec<&str>| s.join("").trim().to_string()
                     ),
                 ),
-                opt(tag("\n"))
+                opt(line_ending)
             ),
             |(_, content)| {
                 let mut list = None;
 
+                let text;
                 // checks for sublists
                 for (i, _) in content.char_indices() {
                     let s = &content[i..];
 
                     if let Ok(_) = next_item_start(s) {
-                        if let Ok((_, result)) = parse_list(indent + 1)(s) {
-                            list = Some((i, result));
+                        if let Ok(result) = parse_list(indent + 1)(s) {
+                            let consumed = content[..i].trim();
+                            list = Some((consumed, result.1));
                             break;
                         }
                     }
                 }
-                let text;
-                if let Some((i, _)) = list {
+                if let Some((consumed, _)) = list {
                     // -1 because of the newline
-                    text = format_text(&content[..i-1]);
+                    text = format_text(&consumed);
                 } else {
-                    text = format_text(&content);
+                    text = format_text(&content.trim());
                 }
 
                 ListItem {
@@ -201,7 +201,7 @@ pub fn parse_list(indent: usize) -> impl Fn(&str) -> IResult<&str, List> {
                 many1(
                     parse_item(indent, token)
                 ),
-                opt(tag("\n"))
+                opt(line_ending)
             ),
             move |items| {
                 List {
