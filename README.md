@@ -1,25 +1,24 @@
 ***(some of the following information may be subject to change)***
 # Aldoc
 
-*aldoc* is a markup language, which takes heavy inspiration from Markdown. Its
-main goal is to provide the beauty and control of LaTeX documents with 
-Markdown's pretty syntax.
+*aldoc* is a markup language with the goal of providing the beauty and control 
+of LaTeX documents with Markdown's pretty syntax, in other words, letting you 
+write your documents without ever needing to touch LaTeX code.
 
-Another one of its goals is to remove the quirks that Markdown brings with its 
-original design, such as:
+It does so while also trying to solve some quirks that Markdown had since its 
+creation: its rules were never clearly established, and as more features were 
+needed for document formatting, variants began appearing, each with their own 
+differences.
 
-- Different versions and editions of Markdown which mildly in syntax, thus 
+The different versions and editions of Markdown vary mildly in syntax, thus 
 making it unreliable for posting on multiple platforms (GitHub Markdown, 
 original HTML Markdown, Pandoc Markdown, etc.)
-- Markdown was not intended for use outside of small documents, such as
-small notes or READMEs (this one), which led to decisions that impacted the
-ergonomics in the syntax (pandoc filters) and ended up in the creation of the 
-different variants.
 
 ## Status
 
-This project is still in its infancy (pre-alpha), and major decisions haven't 
-been taken yet. This shouldn't be used on its current state.
+This project is still in its infancy (pre-alpha), and major design decisions 
+haven't been taken yet. The goals spoken of haven't been reached yet, and 
+features are lacking, this shouldn't be used on its current state.
 
 ## Syntax 
 
