@@ -4,6 +4,7 @@ Check out the following list:
 - Belement
 - Celement
 	- Indented
-		- Anotha one, but this one is special, because it continues
-			on the next line, with a tab behind it.
+		- Anotha one.
+		This element continues on the next line.
+			It doesn't matter how much indent there is.
 	- Back at level 2
