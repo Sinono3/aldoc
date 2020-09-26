@@ -54,7 +54,7 @@ impl IntoLatex {
     }
     fn print_paragraph(buf: &mut String, paragraph: &str) {
         IntoLatex::push_text(buf, paragraph);
-        buf.push_str("\n\n");
+        buf.push_str("\n");
     }
     fn print_list(buf: &mut String, list: &List) {
         let environment = match list.token {
@@ -90,7 +90,7 @@ impl IntoLatex {
         buf.push_str(r#"\end{"#);
         buf.push_str(environment);
         buf.push_str("}");
-        buf.push_str("\n\n");
+        buf.push('\n');
     }
     fn print_block(buf: &mut String, part: &Block) {
         match part {
@@ -108,11 +108,12 @@ impl IntoLatex {
                 };
                 buf.push_str(latex_heading);
                 buf.push_str(&title);
-                buf.push_str("}\n\n");
+                buf.push_str("}\n");
             },
             Block::Paragraph(p) => IntoLatex::print_paragraph(buf, &p),
             Block::List(list) => IntoLatex::print_list(buf, &list),
         }
+        buf.push_str("\n");
     }
 }
 impl Compiler for IntoLatex {
@@ -151,7 +152,7 @@ pub struct IntoPrintable;
 impl IntoPrintable {
     fn print_paragraph(buf: &mut String, par: &str) {
         buf.push_str(par);
-        buf.push_str("\n\n");
+        buf.push_str("\n");
     }
     fn print_list(buf: &mut String, list: &List, indent: usize) {
         for _ in 0..indent {
@@ -193,7 +194,6 @@ impl IntoPrintable {
                 IntoPrintable::print_list(buf, &list, indent + 1);
             }
         }
-        buf.push_str("\n");
     }
     fn print_block(buf: &mut String, part: &Block) {
         match part {
@@ -203,11 +203,12 @@ impl IntoPrintable {
                 }
                 buf.push(' ');
                 buf.push_str(&title);
-                buf.push_str("\n\n");
+                buf.push_str("\n");
             },
             Block::Paragraph(p) => Self::print_paragraph(buf, p),
             Block::List(list) => IntoPrintable::print_list(buf, &list, 0),
         }
+        buf.push_str("\n");
     }
 }
 impl Compiler for IntoPrintable {
