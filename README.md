@@ -16,6 +16,11 @@ small notes or READMEs (this one), which led to decisions that impacted the
 ergonomics in the syntax (pandoc filters) and ended up in the creation of the 
 different variants.
 
+## Status
+
+This project is still in its infancy (pre-alpha), and major decisions haven't 
+been taken yet. This shouldn't be used on its current state.
+
 ## Syntax 
 
 The syntax of aldoc is still *WIP*: what syntax will be the most beneficious 
