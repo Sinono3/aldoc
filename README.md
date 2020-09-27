@@ -74,9 +74,7 @@ following processes takes place:
 
 1. The aldoc source is parsed into a Rust abstraction.
 2. The abstraction is compiled to LaTeX.
-3. The LaTeX code is compiled to PDF via LatexMk (this step is planned to 
-change)
-
+3. The LaTeX code is compiled to PDF via Tectonic.
 
 ### Usage
 
