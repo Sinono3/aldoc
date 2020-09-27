@@ -1,8 +1,7 @@
 use crate::parse::*;
 use crate::compiler::*;
 
-use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::path::PathBuf;
 use std::{fs, io};
 use tectonic::{Error as TectonicError, latex_to_pdf};
 use thiserror::Error;

@@ -6,9 +6,9 @@ pub use list::*;
 use nom::{
     branch::alt,
     bytes::complete::{tag, take},
-    combinator::{recognize, opt, not, map},
+    combinator::{recognize, opt, map},
     multi::{many0, many1, many1_count},
-    sequence::{terminated, preceded, pair},
+    sequence::{terminated, pair},
     character::complete::line_ending,
 };
 use nom::IResult;

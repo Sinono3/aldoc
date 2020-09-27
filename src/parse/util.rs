@@ -1,6 +1,5 @@
 use nom::{
     IResult,
-    error::ParseError,
     combinator::{not, recognize},
     multi::many1_count,
     sequence::preceded,
