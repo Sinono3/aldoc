@@ -116,14 +116,13 @@ the final document)
 - [ ] Line separators
 - [ ] LaTeX template support (for defaulting styles or packages)
 
-
 ## Thanks
 
 Thanks to Markdown, and the *Nom* parser library for providing the necessary 
 tools, as it was fundamental to making the Aldoc parser more extensible. Links 
 for reference:
 
-- [Nom](https://github/Geal/nom)
+- [Nom](https://github.com/Geal/nom)
 - [*Fountain* markup language parser using Nom](https://github.com/adamchalmers/fountain-rs)
 - [Markdown parser using Nom](https://github.com/HGHimself/prose/blob/master/src/markdown.rs)
 
