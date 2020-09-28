@@ -2,7 +2,7 @@ use nom::{
     branch::alt,
     bytes::complete::{tag, take, take_while1},
     combinator::{verify, map},
-    sequence::terminated,
+    sequence::{delimited, terminated},
     IResult
 };
 use numerals::roman::Numeral;
@@ -141,15 +141,27 @@ fn parse_enumerated_token(input: &str) -> IResult<&str, ListToken> {
             ),
             move |e| (format!("{{}}{}", symbol), e)
         );
+    let symbol_delimited = |start: &'static str, end: &'static str|
+        map(
+            delimited(
+                tag(start),
+                parse_enumerator,
+                tag(end),
+            ),
+            move |e| (format!("{}{{}}{}", start, end), e)
+        );
     let dot_terminated = symbol_terminated(".");
     let hyphen_terminated = symbol_terminated("-");
     let parenthesis_terminated = symbol_terminated(")");
+
+    let parenthesis_delimited = symbol_delimited("(", ")");
     
     map(
         alt((
             dot_terminated,
             hyphen_terminated,
-            parenthesis_terminated
+            parenthesis_terminated,
+            parenthesis_delimited,
         )),
         |(wrapper, enumerator)| 
             ListToken { 
