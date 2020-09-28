@@ -9,21 +9,11 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum PdfError {
     #[error("File writing error {0}")]
-    IoError(io::Error),
+    IoError(#[from] io::Error),
     #[error("Error while compiling with Tectonic {0}")]
-    TectonicError(TectonicError),
+    TectonicError(#[from] TectonicError),
     #[error("Output file {0} already exists")]
     FileExists(PathBuf)
-}
-impl From<std::io::Error> for PdfError {
-    fn from(err: std::io::Error) -> PdfError {
-        PdfError::IoError(err)
-    }
-}
-impl From<TectonicError> for PdfError {
-    fn from(err: TectonicError) -> PdfError {
-        PdfError::TectonicError(err)
-    }
 }
 
 /// Compiles a document to binary PDF data via Tectonic.
