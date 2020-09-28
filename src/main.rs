@@ -23,6 +23,9 @@ enum Subcommand {
 struct Compile {
     /// PDF output path (defaults to the input file with a pdf extension).
     output: Option<PathBuf>,
+    /// Determines if the output file will be overwritten
+    #[clap(short, long)]
+    force: bool,
 }
 /// Prints the document to STDOUT.
 #[derive(Clap)]
@@ -49,7 +52,7 @@ fn main() -> Result<(), AldocError> {
                 path
             };
 
-            save_as_pdf(&document, output)?;
+            save_as_pdf(&document, output, c.force)?;
         }
         Subcommand::Print(print) => {
             let text = if print.latex {

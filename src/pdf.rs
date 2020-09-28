@@ -20,24 +20,28 @@ impl From<std::io::Error> for PdfError {
         PdfError::IoError(err)
     }
 }
-
 impl From<TectonicError> for PdfError {
     fn from(err: TectonicError) -> PdfError {
         PdfError::TectonicError(err)
     }
 }
 
-/// Saves a document as a PDF with Tectonic.
-pub fn save_as_pdf<T>(document: &Document, out: T) -> Result<(), PdfError> 
+/// Compiles a document to binary PDF data via Tectonic.
+pub fn compile_to_pdf(document: &Document) -> Result<Vec<u8>, TectonicError> {
+    let compiled = IntoLatex.compile(&document);
+    Ok(latex_to_pdf(compiled)?)
+}
+/// Exports a document to a PDF file via Tectonic.
+pub fn save_as_pdf<T>(document: &Document, out: T, overwrite: bool) -> Result<(), PdfError> 
 where T: Into<PathBuf> 
 {
-    let compiled = IntoLatex.compile(&document);
     let out = out.into(); // pdf file output
 
-    if out.exists() {
+    if !overwrite && out.exists() {
         return Err(PdfError::FileExists(out));
     }
-    let pdf: Vec<u8> = latex_to_pdf(compiled)?;
+
+    let pdf = compile_to_pdf(&document)?;
     fs::write(&out, pdf)?;
     Ok(())
 }
