@@ -1,25 +1,16 @@
 use super::format_text;
 use nom::{
     branch::alt,
-    bytes::complete::{tag, take, take_while1},
+    bytes::complete::{tag, take},
     combinator::{verify, recognize, opt, not, map},
     multi::{many1, count},
     sequence::{pair, terminated, preceded},
     character::complete::line_ending,
 };
-use numerals::roman::Numeral;
-
 use nom::IResult;
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
-pub enum ListToken {
-    // unordered
-    Unnumbered,
 
-    // ordered
-    Numbered,
-    Roman(bool),        // uppercase or lowercase
-    Alphabetical(bool), // uppercase or lowercase
-}
+pub use super::token::{ListToken, TokenEnumerator, TokenWrapper};
+use super::token::parse_item_token;
 
 #[derive(Debug, Clone)]
 pub struct List {
@@ -33,68 +24,6 @@ pub struct ListItem {
     pub list: Option<List>
 }
 
-fn parse_terminator(input: &str) -> IResult<&str, &str> {
-    alt((
-        tag(")"),
-        tag("-"),
-        tag("."),
-    ))(input)
-}
-// this parses the full token.
-fn parse_item_token(input: &str) -> IResult<&str, ListToken> {
-    let unnumbered = 
-        map(
-            alt((
-                tag("-"),
-                tag("+")
-            )),
-            |_| ListToken::Unnumbered
-        );
-    let numbered =
-        map(
-            terminated(
-                take_while1(|c: char| c.is_digit(10)),
-                parse_terminator,
-            ),
-            |_| ListToken::Numbered
-        );
-    let alphabetic = 
-        map(
-            terminated(
-                verify(
-                    take(1u8),
-                    |c: &str| {
-                        let c = c.chars().nth(0).unwrap();
-                        c.is_alphabetic()
-                    }
-                ),
-                parse_terminator,
-            ),
-            |a| {
-                let ch = a.chars().nth(0).unwrap();
-                ListToken::Alphabetical(ch.is_uppercase())
-            }
-        );
-    let roman =
-        map(
-            terminated(
-                take_while1(|r| Numeral::from_char(r).is_some()),
-                parse_terminator
-            ),
-            |n| {
-                let ch = n.chars().nth(0).unwrap();
-                ListToken::Roman(ch.is_uppercase())
-            }
-        );
-    
-    alt((
-        unnumbered,
-        numbered,
-        roman,
-        alphabetic,
-    ))(input)
-}
-
 fn parse_item_start(indent: usize) -> impl Fn(&str) -> IResult<&str, ListToken> {
     move |input: &str|
         map(
@@ -106,22 +35,26 @@ fn parse_item_start(indent: usize) -> impl Fn(&str) -> IResult<&str, ListToken> 
         )(input)
 }
 
-fn parse_item_start_and_enforce(indent: usize, enforced: ListToken) -> impl Fn(&str) -> IResult<&str, ListToken> {
-    use ListToken::*;
-
+fn parse_item_start_and_enforce(indent: usize, enforced: &'_ ListToken) -> impl Fn(&str) -> IResult<&str, ListToken> + '_ {
     move |input: &str|
         verify(
             parse_item_start(indent),
             |token| {
-                if *token == enforced {
+                if token == enforced {
                     return true;
                 } 
                 // this enables roman numerals to also qualify
                 // as alphabetic tokens
-                if let Alphabetical(alpha_upper) = enforced {
-                    if let Roman(roman_upper) = token {
-                        // this part checks if they have the same case
-                        return alpha_upper == *roman_upper;
+                if let Some(a) = &enforced.enumerator {
+                    if let Some(b) = &token.enumerator {
+                        use TokenEnumerator::*;
+
+                        if let Alphabetical(alpha_upper) = &a {
+                            if let Roman(roman_upper) = &b {
+                                // this part checks if they have the same case
+                                return *alpha_upper == *roman_upper;
+                            }
+                        }
                     }
                 }
                 false
@@ -129,7 +62,7 @@ fn parse_item_start_and_enforce(indent: usize, enforced: ListToken) -> impl Fn(&
         )(input)
 }
 
-fn parse_item(indent: usize, token: ListToken) -> impl Fn(&str) -> IResult<&str, ListItem> {
+fn parse_item(indent: usize, token: &ListToken) -> impl Fn(&str) -> IResult<&str, ListItem> + '_ {
     let item_start = parse_item_start_and_enforce(indent, token);
     let next_item_start = parse_item_start(indent + 1);
 
@@ -187,26 +120,27 @@ fn parse_item(indent: usize, token: ListToken) -> impl Fn(&str) -> IResult<&str,
         )(input)
 }
 
-pub fn parse_list(indent: usize) -> impl Fn(&str) -> IResult<&str, List> {
+pub fn parse_list(indent: usize) -> impl Fn(&str) -> IResult<&str, List> + 'static {
     move |input: &str| {
         // this works, but there must be a better way
-        let mut token = ListToken::Unnumbered;
+        let mut token = ListToken::bullet();
 
-        if let Ok((_, result)) = parse_item_start(indent)(input){
+        if let Ok((_, result)) = parse_item_start(indent)(input) {
             token = result;
         }
+        let clone = token.clone();
 
         map(
             terminated(
                 many1(
-                    parse_item(indent, token)
+                    parse_item(indent, &token.clone())
                 ),
                 opt(line_ending)
             ),
             move |items| {
                 List {
                     vec: items,
-                    token
+                    token: clone.clone()
                 }
             }
         )(input)

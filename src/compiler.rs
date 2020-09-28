@@ -1,5 +1,5 @@
 use std::convert::TryFrom;
-use crate::parse::{Document, Block, List, ListToken};
+use crate::parse::{Document, Block, List, ListToken, TokenEnumerator, TokenWrapper};
 use numerals::roman::Roman;
 
 static ALPHABET_UPPER: [char; 26] = [
@@ -57,23 +57,21 @@ impl IntoLatex {
         buf.push_str("\n");
     }
     fn print_list(buf: &mut String, list: &List) {
-        let environment = match list.token {
-            ListToken::Unnumbered => "itemize",
-            _ => "enumerate",
+        let environment = match list.token.enumerator {
+            Some(_) => "enumerate",
+            None => "itemize",
+        };
+        let label = match &list.token.enumerator {
+            None => list.token.wrapper.unnumbered().clone(),
+            Some(e) => list.token.wrapper.label(&e.latex()),
         };
         buf.push_str(r#"\begin{"#);
         buf.push_str(environment);
         buf.push_str("}");
 
-        let extra = match list.token {
-            ListToken::Unnumbered => "",
-            ListToken::Numbered => "",
-            ListToken::Alphabetical(true)   => "[label=\\Alph*.]",
-            ListToken::Alphabetical(false)  => "[label=\\alph*.]",
-            ListToken::Roman(true)   => "[label=\\Roman*.]",
-            ListToken::Roman(false)  => "[label=\\roman*.]",
-        };
-        buf.push_str(extra);
+        buf.push_str("[label=");
+        buf.push_str(&label);
+        buf.push_str("]");
 
         buf.push('\n');
 
@@ -160,25 +158,31 @@ impl IntoPrintable {
         }
         // index starts on 1
         let get_token = |i: i16| 
-            match list.token {
-                ListToken::Unnumbered => String::from("-"),
-                ListToken::Numbered => format!("{}.", i),
-                ListToken::Alphabetical(u)   => {
-                    // FIXME: Should this happen?
-                    // What are alternatives to this?
-                    
-                    if i > 26 {
-                        panic!("List bigger than alphabet size");
-                    }
-                    if u {
-                        format!("{}.", ALPHABET_UPPER[(i - 1) as usize])
-                    } else {
-                        format!("{}.", ALPHABET_LOWER[(i - 1) as usize])
-                    }
-                }
-                ListToken::Roman(u) => format!("{}.", roman(i, u)),
-            };
+            match &list.token.enumerator {
+                None => list.token.wrapper.unnumbered().clone(),
+                Some(e) => { 
+                    use TokenEnumerator::*;
 
+                    let enumerated = match &e {
+                        Numerical => format!("{}", i),
+                        Alphabetical(u) => {
+                            // FIXME: Should this happen?
+                            // What are alternatives to this?
+                            
+                            if i > 26 {
+                                panic!("List bigger than alphabet size");
+                            }
+                            if *u {
+                                format!("{}", ALPHABET_UPPER[(i - 1) as usize])
+                            } else {
+                                format!("{}", ALPHABET_LOWER[(i - 1) as usize])
+                            }
+                        }
+                        Roman(u) => format!("{}", roman(i, *u)),
+                    };
+                    list.token.wrapper.label(&enumerated)
+                }
+            };
 
         let iter = list.vec.iter().enumerate();
         for (index, item) in iter {
