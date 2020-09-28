@@ -12,8 +12,7 @@ use nom::{
     character::complete::line_ending,
 };
 use nom::IResult;
-
-pub type ParseError<'s> = nom::Err<(&'s str, nom::error::ErrorKind)>;
+use nom::error::ErrorKind;
 
 /// Replaces all consecutive line endings and tabs with a single space
 pub fn format_text(s: &str) -> String {
@@ -96,7 +95,7 @@ pub struct Document {
 }
 
 /// Parses raw Aldoc text into a document abstraction.
-pub fn parse(input: &str) -> Result<Document, nom::Err<(&str, nom::error::ErrorKind)>> {
+pub fn parse(input: &str) -> Result<Document, nom::Err<(&str, ErrorKind)>> {
     many0(
         parse_block
     )(input)

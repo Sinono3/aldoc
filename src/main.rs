@@ -37,10 +37,13 @@ struct Print {
 
 fn main() -> Result<(), AldocError> {
     let aldoc: Aldoc = Aldoc::parse();
+    let text = fs::read_to_string(&aldoc.input)?;
 
-    let text = fs::read_to_string(&aldoc.input).unwrap();
-    let document = parse(&text).unwrap();
+    if text.is_empty() {
+        return Err(AldocError::EmptyDocument);
+    }
 
+    let document = parse(&text)?;
 
     match aldoc.subcommand {
         Subcommand::Compile(c) => {
@@ -63,6 +66,7 @@ fn main() -> Result<(), AldocError> {
             println!("{}", text);
         }
     }
+    // TODO: print `Display` text instead of `Debug` text
     Ok(())
 }
 

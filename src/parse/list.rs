@@ -1,4 +1,4 @@
-use crate::format_text;
+use super::format_text;
 use nom::{
     branch::alt,
     bytes::complete::{tag, take, take_while1},

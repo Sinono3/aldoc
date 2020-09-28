@@ -93,27 +93,26 @@ pub use crate::{
     compiler::{Compiler, IntoLatex, IntoPrintable},
     parse::{Document, parse}
 };
+use nom::Err as NomError;
+use nom::error::ErrorKind;
+use std::io::Error as IoError;
 
-use parse::*;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum AldocError {
+    #[error("Error reading file")]
+    FileError(#[from] IoError),
+    #[error("Document is empty")]
+    EmptyDocument,
     #[error("Error parsing document")]
-    ParseError(String),
-    #[error("Error compiling document")]
-    CompilationError, // unimplemented
+    ParseError(NomError<(String, ErrorKind)>),
     #[error("Error exporting to PDF: {0}")]
-    PdfError(PdfError)
+    PdfError(#[from] PdfError)
 }
-impl<'s> From<ParseError<'s>> for AldocError {
-    fn from(e: ParseError) -> AldocError {
-        AldocError::ParseError(e.to_string())
-    }
-}
-impl From<PdfError> for AldocError {
-    fn from(e: PdfError) -> AldocError {
-        AldocError::PdfError(e)
+impl From<NomError<(&str, ErrorKind)>> for AldocError {
+    fn from(e: NomError<(&str, ErrorKind)>) -> AldocError {
+        AldocError::ParseError(e.to_owned())
     }
 }
 
@@ -124,13 +123,12 @@ mod tests {
     use crate::parse::parse;
     use std::path::PathBuf;
 
-    // This function is for tests
     fn quick_pdf<T>(p: T) -> Result<(), AldocError>
         where T: Into<PathBuf> 
     {
         let text = std::fs::read_to_string(p.into()).unwrap();
         let document = parse(&text)?;
-        save_as_pdf(&document, "test/test.pdf")?; // some tests don't need to be saved to a pdf
+        save_as_pdf(&document, "test/test.pdf", true)?; // some tests don't need to be saved to a pdf
         Ok(())
     }
     fn quick_parse<T>(p: T) -> Result<(), AldocError>

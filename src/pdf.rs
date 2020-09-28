@@ -10,7 +10,7 @@ use thiserror::Error;
 pub enum PdfError {
     #[error("File writing error {0}")]
     IoError(#[from] io::Error),
-    #[error("Error while compiling with Tectonic {0}")]
+    #[error("Tectonic compilation error: {0}")]
     TectonicError(#[from] TectonicError),
     #[error("Output file {0} already exists")]
     FileExists(PathBuf)
