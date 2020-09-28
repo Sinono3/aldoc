@@ -27,7 +27,7 @@ impl From<TectonicError> for PdfError {
     }
 }
 
-/// Saves a document as a PDF with LatexMk.
+/// Saves a document as a PDF with Tectonic.
 pub fn save_as_pdf<T>(document: &Document, out: T) -> Result<(), PdfError> 
 where T: Into<PathBuf> 
 {
