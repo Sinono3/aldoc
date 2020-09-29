@@ -31,26 +31,7 @@ pub struct IntoLatex;
 
 impl IntoLatex {
     fn push_text(buf: &mut String, text: &str) {
-        // TODO: This is not foolproof
-        // should also check for italics
-        let mut in_bold = false;
-
-        for ch in text.chars() {
-            if ch == '*' {
-                let bf = if !in_bold {
-                    r#"\textbf{"#
-                } else {
-                    "}"
-                };
-                in_bold = !in_bold;
-                buf.push_str(bf);
-                continue;
-            }
-            buf.push(ch);
-        }
-        if in_bold {
-            buf.push('}');
-        }
+        buf.push_str(text);
     }
     fn print_paragraph(buf: &mut String, paragraph: &str) {
         IntoLatex::push_text(buf, paragraph);
