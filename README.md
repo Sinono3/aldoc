@@ -3,7 +3,7 @@
 
 *aldoc* is a markup language with the goal of providing the beauty and control 
 of LaTeX documents with Markdown's pretty syntax, in other words, letting you 
-write your documents without ever needing to touch LaTeX code.
+write your documents without hardcoding LaTeX.
 
 It does so while also trying to solve some quirks that Markdown had since its 
 creation: its rules were never clearly established, and as more features were 
@@ -42,8 +42,8 @@ the following:
 	- Belement
 	- Celement
 	```
-- Enumerated lists can be written in many ways. Aldoc's design allow you to use
-any combination of enumerator (`1`, `a`, `III`) and symbol (`.`, `)`, `-`).
+- Aldoc's design allow you to use any combination of enumerator (`1`, `a`, 
+`III`) and symbols (`.`, `)`, `-`), in different orders.
 	- With numbers:
 		```
 		1. Alement
@@ -52,9 +52,9 @@ any combination of enumerator (`1`, `a`, `III`) and symbol (`.`, `)`, `-`).
 		```
 	- With letters (uppercase or lowercase):
 		```
-		a) Alement
-		b) Belement
-		c) Celement
+		(a) Alement
+		(b) Belement
+		(c) Celement
 		```
 	- With roman numbers (uppercase or lowercase):
 		```
@@ -62,10 +62,7 @@ any combination of enumerator (`1`, `a`, `III`) and symbol (`.`, `)`, `-`).
 		II- Belement
 		III- Celement
 		```
-- Bold text is written with asterisks around it.
-	```
-	Normal text is written *until the asterisks come around*.
-	```
+
 ## Tool
 
 As a tool, library and Cargo package, it provides an abstraction for the 
@@ -96,7 +93,6 @@ $ aldoc doc.ald compile # outputs pdf as "doc.pdf"
 
 - [X] Normal paragraphs
 - [X] Allow LaTeX in the source
-- [X] Bold text
 - [X] Unnumbered lists
 - [X] Enumerated lists
 	- [X] Numbered
@@ -106,6 +102,7 @@ $ aldoc doc.ald compile # outputs pdf as "doc.pdf"
 - [X] Cross-platform line endings
 - [X] Control list tokens completely (make the selected token symbol appear in 
 the final document)
+- [ ] Bold, italics and emphasize text
 - [ ] Checkboxes
 - [ ] Embeds
 	- [ ] Images
