@@ -1,6 +1,9 @@
 ***(some of the following information may be subject to change)***
 # Aldoc
 
+[![Crates.io](https://img.shields.io/crates/v/aldoc.svg)](https://crates.io/crates/aldoc)
+[![Docs](https://docs.rs/aldoc/badge.svg)](https://docs.rs/aldoc)
+
 *aldoc* is a markup language with the goal of providing the beauty and control 
 of LaTeX documents with Markdown's pretty syntax, in other words, letting you 
 write your documents without hardcoding LaTeX.
