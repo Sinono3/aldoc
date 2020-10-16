@@ -1,9 +1,9 @@
 [package]
 name = "aldoc"
-version = "0.1.4"
+version = "0.2.0"
 edition = "2018"
 authors = ["sinono3 <aldoacevedo1993@gmail.com>"]
-description = "CLI and library for parsing and compiling Aldoc documents"
+description = "CLI and library for parsing and compiling Aldoc Markdown documents"
 
 license = "Apache-2.0"
 keywords = ["typesetting", "markup", "markdown", "latex"]

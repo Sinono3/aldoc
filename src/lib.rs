@@ -1,18 +1,9 @@
 //! ***(some of the following information may be subject to change)***
 //! # Aldoc
 //! 
-//! *aldoc* is a markup language with the goal of providing the beauty and control 
+//! *aldoc* is a Markdown variant with the goal of providing the beauty and control 
 //! of LaTeX documents with Markdown's pretty syntax, in other words, letting you 
 //! write your documents without ever needing to touch LaTeX code.
-//! 
-//! It does so while also trying to solve some quirks that Markdown had since its 
-//! creation: its rules were never clearly established, and as more features were 
-//! needed for document formatting, variants began appearing, each with their own 
-//! differences.
-//! 
-//! The different versions and editions of Markdown vary mildly in syntax, thus 
-//! making it unreliable for posting on multiple platforms (GitHub Markdown, 
-//! original HTML Markdown, Pandoc Markdown, etc.)
 //! 
 //! ## Status
 //! 
@@ -54,10 +45,6 @@
 //! 		II- Belement
 //! 		III- Celement
 //! 		```
-//! - Bold text is written with asterisks around it.
-//! 	```
-//! 	Normal text is written *until the asterisks come around*.
-//! 	```
 //! ## Tool
 //! 
 //! As a tool, library and Cargo package, it provides an abstraction for the 
@@ -74,14 +61,14 @@
 //! file path (.ald) and the output pdf path, like this:
 //! 
 //! ```shell
-//! $ aldoc doc.ald compile out.pdf
+//! $ aldoc doc.md compile out.pdf
 //! ```
 //! 
 //! You may even omit the output file, in which case, aldoc will output a pdf
 //! with the same name as the document.
 //! 
 //! ```shell
-//! $ aldoc doc.ald compile # outputs pdf as "doc.pdf"
+//! $ aldoc doc.md compile # outputs pdf as "doc.pdf"
 //! ```
 
 mod parse;

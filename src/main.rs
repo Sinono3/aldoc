@@ -8,7 +8,7 @@ use clap::Clap;
 #[derive(Clap)]
 #[clap(version = "0.1", author = "Aldo Acevedo <aldoacevedo1993@gmail.com>")]
 struct Aldoc {
-    /// Input .ald file
+    /// Input .md file
     input: PathBuf,
     #[clap(subcommand)]
     subcommand: Subcommand,
