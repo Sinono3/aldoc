@@ -6,7 +6,7 @@ use clap::Clap;
 
 /// A markup language compiler.
 #[derive(Clap)]
-#[clap(version = "0.1", author = "Aldo Acevedo <aldoacevedo1993@gmail.com>")]
+#[clap(version = "0.2", author = "Aldo Acevedo <aldoacevedo1993@gmail.com>")]
 struct Aldoc {
     /// Input .md file
     input: PathBuf,
